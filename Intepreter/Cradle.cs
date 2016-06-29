@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Intepreter
 {
     class Cradle
     {
-        public const string Tab = "\t";
-
-
+        // Constants
+        public const string TAB = "\t";
+        public const string NEWLINE = "/n";
+        public readonly char[] ADD_OPERATORS = new  char[] { '+', '-' };
+        public readonly char[] MULTIPLY_OPERATORS = new char[] { '*', '-' };
+        //Charchter stored
         public static char look;
 
 
-        //Read charachter form input stream
+        //Read characters from Input Stream
         public void getChar() {
 
             look = (char)Console.Read();
         }
-        //Report an error
+        //Report an Error
 
         public void Error(string s) {
             Console.WriteLine("\n Error{0}", s);
@@ -27,11 +31,11 @@ namespace Intepreter
 
         }
 
-        //Report Error and halt
+        //Report Error and Halt
         public void Abort(string s) {
 
             Error(s);
-           // Environment.Exit(0);
+            Environment.Exit(0);
         }
 
         //Report what was expected
@@ -51,7 +55,7 @@ namespace Intepreter
             }
         }
 
-        //Recognize an alphabet char
+        //Recognize an aAlphabet Char
         public bool isAlpha(char c) {
             if (Char.IsLetter(c))
             {
@@ -63,7 +67,7 @@ namespace Intepreter
             }
         }
 
-        //Recognise a number
+        //Recognise a Integer
         public bool isDigit(char c) {
             if (Char.IsDigit(c))
             {
@@ -115,7 +119,7 @@ namespace Intepreter
 
         public void Emit(string s) {
 
-            Console.WriteLine(Tab + s);
+            Console.WriteLine(TAB + s);
         }
 
         //output a string with tab and new line
@@ -130,7 +134,7 @@ namespace Intepreter
 
             Factor();
 
-            while (look == '*' || look == '/') {
+            while (MULTIPLY_OPERATORS.Contains(look)) {
 
 
                 switch (look) {
@@ -147,14 +151,14 @@ namespace Intepreter
                 }
 
 
-        //recognize and TRanslate an Add
+        //Recognize and Translate an Add
         public void Add()
         {
             Match('+');
             Term();
             EmitLn("ADD D1,D0");
         }
-
+        //Recognize and Translate an Subtract
         public void Subtract()
         {
             Match('-');
@@ -162,6 +166,7 @@ namespace Intepreter
             EmitLn("SUB D1,D0");
             EmitLn("NEG D0");
         }
+        //Recognize and Translate an Multiply
         public void Multiply() {
 
             Match('*');
@@ -169,6 +174,7 @@ namespace Intepreter
             EmitLn("Muls (SP) + D0");
         }
 
+        //Recognize and Translate Divide
         public void Divide() { 
         
 
@@ -178,11 +184,30 @@ namespace Intepreter
             EmitLn("Divs D1, D0");
         }
 
+        //Recognize and Translate an AddOP (Subtraction is addition of negative numbers)
+        public bool isAddop(char c) {
+
+            if (ADD_OPERATORS.Contains(c))
+            {
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
 
         public void Expression() {
-            Term();
+          
 
-            while (look == '+' || look == '-')
+            if (isAddop(look)){
+                EmitLn("CLR D0");
+            }
+            else {
+                Term();
+            }
+
+            while (isAddop(look))
             {
                 switch (look)
                 {
@@ -193,14 +218,14 @@ namespace Intepreter
                         Subtract();
                         break;
                     default:
-                        Expected("Add Operation");
+                        Expected("Addop");
                         break;
 
                 }
             }
         }
 
-        //parse and TRanslate a maths fator
+        //Parse and TRanslate a maths fator
         public void Factor() {
             //recognize brackets
             if (look == '(')
@@ -217,6 +242,7 @@ namespace Intepreter
             }
         }
      
+        //Initilize this class
         public void initialize() {
             getChar();
 
